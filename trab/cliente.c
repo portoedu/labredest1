@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 	memcpy(buffer_u.cooked_data.ethernet.src_addr, src_mac, 6);
 	buffer_u.cooked_data.ethernet.eth_type = htons(ETH_P_IP);
 	
-	char name[15] = "newuser";
+	char name[15];
 	char aux[15];
 	char canal[15];
 	/*pthread_t thread;
@@ -127,14 +127,15 @@ int main(int argc, char *argv[])
 	}	*/
 
 	printf("Por favor comece inserindo um nick com o comando \\nick!\n\n");
-	sprintf(canal, "");
+	memset(canal, '\0', sizeof(canal));
 	while(1){
 		printf(">");
-		sprintf(aux, "");
+		memset(aux, '\0', sizeof(aux));
 		fgets (input, sizeof(input), stdin);
 		input[strlen(input)-1] = '\0';
 
 		if(strncmp(input,"/nick",5)==0){
+			memset(name, '\0', sizeof(name));
 			strncpy ( name, &input[6], strlen(input) - 6 );
 			printf("Alterando nick para %s!\n", name);
 			sprintf(msg, "/NICK %s", name);
@@ -162,14 +163,19 @@ int main(int argc, char *argv[])
 			if(strlen(aux) != 0) {
 				sprintf(msg, "/JOIN #%s", aux);
 				printf("Entrando no canal #%s !!!\n", aux);
-				strncpy(canal, aux, sizeof(aux));
+				strcpy(canal, aux);
 			} else {
 				printf("Insira o nome do canal\n");
 			}
 		} else if(strncmp(input,"/part",5)==0) {
 			sprintf(msg, "/PART #%s", aux);
-			printf("Saindo do canal #%s!\n", aux);
-			sprintf(canal, "");
+			if(strlen(canal) == 0)
+			{
+				printf("Você não está em um servidor!\n");
+				continue;
+			}
+			printf("Saindo do canal #%s!\n", canal);
+			memset(canal, '\0', sizeof(canal));
 		} else if(strncmp(input,"/names",6)==0) {
 			sprintf(msg, "/NAMES #%s", canal);
 			printf("Listando nomes!\n");

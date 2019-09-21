@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 	if (sendto(sockfd, buffer_u.raw_data, sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg), 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
 		printf("Send failed\n");
 
-	printf("send\n");
+	printf("\tsend\n");
 	
 
 				//fim echo
