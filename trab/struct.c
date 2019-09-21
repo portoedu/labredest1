@@ -16,6 +16,7 @@ void criarCanal(char name[15], CLIENTE *c, SERVER *sv)
         return;
     }
 
+    strcpy(nova->name, name);
     nova->admin = c;
     nova->participantes = NULL;
     nova->numParticipantes = 0;

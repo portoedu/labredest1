@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     int serverSocket, numbytes;
     char *p;
     struct sockaddr_ll socket_address;
-    uint8_t msg[80];
+    uint8_t msg[80] = "hello";
 
     serverChannels.primeiro = NULL;
     serverChannels.ultimo = NULL;
@@ -107,23 +107,21 @@ int main(int argc, char *argv[])
                        ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len), (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)
                       );
                 //echo send
-				input = (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr);
+			 	input = (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr);
+                memset(aux, '\0', sizeof(aux));
                 if(strncmp(input,"/NICK",5)==0) {
                     memset(c.name, '\0', sizeof(c.name));
                     strncpy ( c.name, &input[6], strlen(input) - 6 );
-                    printf("Usuário alterou o  nick para %s!\n", c.name);
+                    printf("\nUsuário alterou o  nick para %s!\n", c.name);
                     sprintf(msg, "Nick alterado!");
                 
-				} else if(strncmp(input,"/create",7)==0) {
+				} else if(strncmp(input,"/CREATE",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8);
-                    if(strlen(aux) != 0) {
-                        printf("Criando canal #%s !!!\n", aux);
-						//criarCanal(aux, &c, &serverChannels);
-                        sprintf(msg, "Server Criado!");
-                    } else {
-                        printf("Insira o nome do canal\n");
-                    }
-
+                    printf("\nCriando canal %s !!!\n", aux);
+					criarCanal(aux, &c, &serverChannels);
+                    sprintf(msg, "Server Criado!");
+                    printf("prim: %s\n", serverChannels.primeiro->chnl->name);
+                }
            /*     } else if(strncmp(input,"/remove",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8 );
                     if(strlen(aux) != 0) {
@@ -132,9 +130,9 @@ int main(int argc, char *argv[])
                     } else {
                         printf("Insira o nome do canal\n");
                     }
-
+                }
 					*/
-                } else if(strncmp(input,"/list",5)==0) {
+                 else if(strncmp(input,"/LIST",5)==0) {
                     sprintf(msg, "/LIST");
 					LISTC *list = serverChannels.primeiro;
                     if(serverChannels.numDeCanais != 0)
