@@ -1,40 +1,40 @@
 #ifndef STRUCT_H
-#define STRUCT_Hz
+#define STRUCT_H
 
 #include <stdbool.h>
 
-typedef struct {
+typedef struct SERVER{
     int numDeCanais;
-    struct Listc *primeiro;
-    struct Listc *ultimo;
-}Servidor;
+    struct LISTC* primeiro;
+    struct LISTC* ultimo;
+} SERVER;
 
-typedef struct {
-	struct Client  *clt;
-	struct Listp	*prox;
-    struct Listp   *ant;
-}Listp;
+typedef struct LISTP{
+	struct CLIENTE*  clt;
+	struct LISTP*	prox;
+    struct LISTP*   ant;
+} LISTP;
 
-typedef struct {
-	struct Canal   *chnl;
-	struct Listc	*prox;
-    struct Listc   *ant;
-}Listc;
+typedef struct LISTC{
+	struct CANAL*   chnl;
+	struct LISTC*	prox;
+    struct LISTC*   ant;
+} LISTC;
 
-typedef struct {
-	struct Client  *admin;
+typedef struct CANAL{
+	struct CLIENTE*  admin;
 	char 	name[15];
-	struct Listp	*participantes;
+	struct LISTP*	participantes;
 	int 	numParticipantes;
-}Canal;
+} CANAL;
 
-typedef struct{
+typedef struct CLIENTE{
 	char name[15];
 	char channel[15];
-}Client;
+} CLIENTE;
 
-void criarCanal(char name[15], Client *c, Servidor *sv);
-bool removeCanal(char name[15], Client *c, Servidor *sv); //TODO AVISAR TDS USUARIOS
+void criarCanal(char name[15], CLIENTE *c, SERVER *sv);
+//bool removeCanal(char name[15], CLIENTE *c, SERVER *sv); //TODO AVISAR TDS USUARIOS
 
 
 #endif

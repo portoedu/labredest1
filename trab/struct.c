@@ -2,19 +2,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
-//extern Servidor serverChannels;
-
-
-void criarCanal(char name[15], Client *c, Servidor *sv)
+void insereNoFim(CANAL *novo, SERVER *serverChannels);
+void criarCanal(char name[15], CLIENTE *c, SERVER *sv)
 {
-    Canal* nova = NULL;
+    CANAL* nova = NULL;
 
-    nova = malloc(sizeof(Canal));
+    nova = malloc(sizeof(CANAL));
     if (nova == NULL)
     {
         printf("ERRO ALOCAÇÃO!\n");
-        return NULL;
+        return;
     }
 
     nova->admin = c;
@@ -23,11 +22,11 @@ void criarCanal(char name[15], Client *c, Servidor *sv)
     insereNoFim(nova, sv);
 }
 
-void insereNoFim(Canal *novo, Servidor *serverChannels)
+void insereNoFim(CANAL *novo, SERVER *serverChannels)
 {
-    Listc* c = NULL;
+    LISTC* c = NULL;
 
-    c = malloc(sizeof(Listc));
+    c = malloc(sizeof(LISTC));
     if (c == NULL)
     {
         printf("ERRO ALOCAÇÃO!\n");
@@ -45,6 +44,7 @@ void insereNoFim(Canal *novo, Servidor *serverChannels)
 
 
     serverChannels->ultimo = c;
+    serverChannels->numDeCanais += 1;
     if (serverChannels->primeiro == NULL)
     {
         serverChannels->primeiro = c;
@@ -54,15 +54,15 @@ void insereNoFim(Canal *novo, Servidor *serverChannels)
     return;
 }
 
-bool removeCanal(char name[15], Client *c, Servidor *sv) //todo ver
+/*bool removeCanal(char name[15], CLIENTE *c, SERVER *sv) //todo ver
 {
-    Listc *aux = sv->primeiro;
+    LISTC *aux = sv->primeiro;
     if(aux->chnl->name == name)
     {
         if(aux->prox != NULL)
         {
             aux->prox->ant= NULL;
-            sv->aux = aux->prox;
+            sv->primeiro = aux->prox;
         }
         else
         {
@@ -71,10 +71,10 @@ bool removeCanal(char name[15], Client *c, Servidor *sv) //todo ver
         free(aux);
     }
 
-    Listc *aux2;
+    LISTC *aux2;
     while(aux != NULL)
     {
-        if(strncmp(aux->chnl->name, name)==0)
+        if(strncmp(aux->chnl->name, name, sizeof(name))==0)
         {
             if(aux->chnl->admin == c)
             {
@@ -102,3 +102,4 @@ bool removeCanal(char name[15], Client *c, Servidor *sv) //todo ver
     return false;
 }
 
+*/

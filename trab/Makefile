@@ -1,6 +1,5 @@
 all:
-	gcc struct.c -o struct
-	gcc servidor.c -o server
+	gcc servidor.c struct.c -o server
 	gcc cliente.c -pthread -o client
 clean:
 	rm -f client server

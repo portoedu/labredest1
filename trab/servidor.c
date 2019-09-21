@@ -15,7 +15,7 @@
 #define PROTO_UDP	17
 #define DST_PORT	8000
 
-Servidor serverChannels;
+SERVER serverChannels;
 char this_mac[6];
 char bcast_mac[6] =	{0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 char dst_mac[6] =	{0xa4, 0x1f, 0x72, 0xf5, 0x90, 0xb7};
@@ -43,8 +43,11 @@ int main(int argc, char *argv[])
     int serverSocket, numbytes;
     char *p;
     struct sockaddr_ll socket_address;
-    uint8_t msg[] = "hello world!! =)";
+    uint8_t msg[80];
 
+    serverChannels.primeiro = NULL;
+    serverChannels.ultimo = NULL;
+    serverChannels.numDeCanais = 0;
     /* Get interface name */
     if (argc > 1)
         strcpy(ifName, argv[1]);
@@ -79,7 +82,7 @@ int main(int argc, char *argv[])
     }*/
 	char *input;
 	char aux[15];
-	cliente c; //TODO MALLOC PARA MULTI CLIENTS
+	CLIENTE c; //TODO MALLOC PARA MULTI CLIENTS
     while (1) {
         /*if(accept(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0){
         	perror("connect");
@@ -106,16 +109,16 @@ int main(int argc, char *argv[])
                 //echo send
 				input = (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr);
                 if(strncmp(input,"/NICK",5)==0) {
-                    memset(c->name, '\0', sizeof(c->name));
-                    strncpy ( c->name, &input[6], strlen(input) - 6 );
-                    printf("Usuário alterou o  nick para !\n", c->name);
+                    memset(c.name, '\0', sizeof(c.name));
+                    strncpy ( c.name, &input[6], strlen(input) - 6 );
+                    printf("Usuário alterou o  nick para %s!\n", c.name);
                     sprintf(msg, "Nick alterado!");
                 
 				} else if(strncmp(input,"/create",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8);
                     if(strlen(aux) != 0) {
                         printf("Criando canal #%s !!!\n", aux);
-						criarCanal(aux, c, serverChannels);
+						//criarCanal(aux, &c, &serverChannels);
                         sprintf(msg, "Server Criado!");
                     } else {
                         printf("Insira o nome do canal\n");
@@ -133,10 +136,11 @@ int main(int argc, char *argv[])
 					*/
                 } else if(strncmp(input,"/list",5)==0) {
                     sprintf(msg, "/LIST");
-					Listc *list = serverChannels->primeiro;
-                    white(list != NULL)
+					LISTC *list = serverChannels.primeiro;
+                    if(serverChannels.numDeCanais != 0)
+                    while(list != NULL)
 					{
-						printf("%s\n", list->c->name);
+						printf("%s\n", list->chnl->name);
 						list = list->prox;
 					}}
 
