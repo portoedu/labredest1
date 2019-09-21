@@ -1,0 +1,2 @@
+cliente -> fazer conexao fixa ao servidor
+servidor -> tudo

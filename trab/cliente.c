@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <net/if.h>
@@ -41,21 +42,6 @@ uint32_t ipchksum(uint8_t *packet)
 	while (sum & 0xffff0000)
 		sum = (sum & 0xffff) + (sum >> 16);
 	return sum;
-}
-
-void* receive(void* argv)
-{
-	while(continua){
-		numbytes = recvfrom(clientSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
-		if (buffer_u.cooked_data.ethernet.eth_type == ntohs(ETH_P_IP) ){
-
-			if (buffer_u.cooked_data.payload.ip.proto == PROTO_UDP && buffer_u.cooked_data.payload.udp.udphdr.dst_port == ntohs(DST_PORT)){
-				p = (char *)&buffer_u.cooked_data.payload.udp.udphdr + ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len);
-				*p = '\0';
-				printf("> %s \n", (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)); 
-			}
-		}	
-	}
 }
 
 int main(int argc, char *argv[])
@@ -103,15 +89,16 @@ int main(int argc, char *argv[])
 
 	/* End of configuration. Now we can send data using raw sockets. */
 
-	/*serverAddr.sin_family = AF_INET;
+	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(8000);
 	serverAddr.sin_addr.s_addr = inet_addr("10.0.2.15");
-	if(connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0){
+	/*if(connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0){ //TODO
 		perror("connect Error ");
 		return 0;
 	}*/
 
-	//printf("Conectado ao servidor!\n");
+	//printf("Conectado ao Servidor!!\n");
+
 	/* Fill the Ethernet frame header */
 	memcpy(buffer_u.cooked_data.ethernet.dst_addr, bcast_mac, 6);
 	memcpy(buffer_u.cooked_data.ethernet.src_addr, src_mac, 6);
@@ -128,8 +115,8 @@ int main(int argc, char *argv[])
 
 	printf("Por favor comece inserindo um nick com o comando \\nick!\n\n");
 	memset(canal, '\0', sizeof(canal));
-	while(1){
-		printf(">");
+	if(fork() == 0){
+	while(continua){
 		memset(aux, '\0', sizeof(aux));
 		fgets (input, sizeof(input), stdin);
 		input[strlen(input)-1] = '\0';
@@ -196,6 +183,7 @@ int main(int argc, char *argv[])
 			else
 				sprintf(msg, "/QUIT #%s", canal);
 			printf("Fechando o chat!\n");
+			continua = 0;
 		} else { //MSG
 			sprintf(msg, "<%s> %s", name, input);
 		}
@@ -236,7 +224,7 @@ int main(int argc, char *argv[])
 
 		printf("send\n");
 
-		numbytes = recvfrom(clientSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
+		/*numbytes = recvfrom(clientSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
 		if (buffer_u.cooked_data.ethernet.eth_type == ntohs(ETH_P_IP) ){
 
 			if (buffer_u.cooked_data.payload.ip.proto == PROTO_UDP && buffer_u.cooked_data.payload.udp.udphdr.dst_port == ntohs(DST_PORT)){
@@ -244,8 +232,23 @@ int main(int argc, char *argv[])
 				*p = '\0';
 				printf("> %s \n", (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)); 
 			}
+		}*/
+
+	}
+	}
+	else{
+		while(continua){
+		numbytes = recvfrom(clientSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
+		if (buffer_u.cooked_data.ethernet.eth_type == ntohs(ETH_P_IP) ){
+
+			if (buffer_u.cooked_data.payload.ip.proto == PROTO_UDP && buffer_u.cooked_data.payload.udp.udphdr.dst_port == ntohs(DST_PORT)){
+				p = (char *)&buffer_u.cooked_data.payload.udp.udphdr + ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len);
+				*p = '\0';
+				printf("%s \n", (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)); 
+			}
 		}
 
+	}
 	}
 
 	return 0;
