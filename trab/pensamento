@@ -1,0 +1,22 @@
+server
+{
+	channel *first;
+}
+
+	
+channel
+{
+	char name[10];
+	names *firstname;
+	channel *next;
+}
+
+names
+{
+	char name;
+	(socket)
+	names *next;
+}
+
+
+
