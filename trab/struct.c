@@ -1,7 +1,10 @@
 #include "struct.h"
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 //extern Servidor serverChannels;
+
 
 void criarCanal(char name[15], Client *c, Servidor *sv)
 {
@@ -58,7 +61,7 @@ bool removeCanal(char name[15], Client *c, Servidor *sv) //todo ver
     {
         if(aux->prox != NULL)
         {
-            aux->prox->ant= NULL
+            aux->prox->ant= NULL;
             sv->aux = aux->prox;
         }
         else

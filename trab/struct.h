@@ -1,40 +1,34 @@
 #ifndef STRUCT_H
-#define STRUCT_H
+#define STRUCT_Hz
 
 #include <stdbool.h>
 
-struct LISTP Listp;
-struct SERVER Servidor;
-struct LISTC Listc;
-struct CHANNELS Canal;
-struct CLIENTS Client;
-
-struct SERVER{
+typedef struct {
     int numDeCanais;
     struct Listc *primeiro;
     struct Listc *ultimo;
 }Servidor;
 
-struct LISTP{
+typedef struct {
 	struct Client  *clt;
 	struct Listp	*prox;
     struct Listp   *ant;
 }Listp;
 
-struct LISTC{
+typedef struct {
 	struct Canal   *chnl;
 	struct Listc	*prox;
     struct Listc   *ant;
 }Listc;
 
-struct CHANNELS{
+typedef struct {
 	struct Client  *admin;
 	char 	name[15];
 	struct Listp	*participantes;
 	int 	numParticipantes;
 }Canal;
 
-struct CLIENTS{
+typedef struct{
 	char name[15];
 	char channel[15];
 }Client;
