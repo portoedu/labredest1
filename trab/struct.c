@@ -170,3 +170,52 @@ void adicionaParticipante(CLIENTE *c,CANAL *channel)
     return;
 }
 
+void sairDoCanal(CLIENTE *c)
+{
+    LISTP *aux = c->channel->primeiro;
+
+    if(strncmp(aux->clt->name,c->name,sizeof(c->name))==0)
+    {
+        if(aux->prox != NULL)
+        {
+            aux->prox->ant= NULL;
+            c->channel->primeiro = aux->prox;
+        }
+        else
+        {
+            c->channel->primeiro = NULL;
+        }
+        c->channel->numParticipantes -=1;
+        if(c->channel->numParticipantes == 0)
+        {
+            c->channel->ultimo = NULL;
+        }
+    }
+
+
+    LISTP *aux2;
+    aux = aux->prox;
+    while(aux != NULL)
+    {
+        if(strncmp(aux->clt->name, c->name, sizeof(c->name))==0)
+        {
+            if(aux->prox != NULL)
+            {
+                aux2 = aux->prox;
+                aux2->ant = aux->ant;
+                aux->ant->prox = aux->prox;
+            }
+            else
+            {
+                aux->ant->prox = NULL;
+            }
+            c->channel->numParticipantes -=1;
+            if(c->channel->numParticipantes == 0)
+            {
+                c->channel->ultimo = NULL;
+            }
+        }
+        aux = aux->prox;
+    }
+    c->channel = NULL;
+}

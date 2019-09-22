@@ -38,5 +38,6 @@ void criarCanal(char name[15], CLIENTE *c, SERVER *sv);
 int removeCanal(char name[15], CLIENTE *c, SERVER *sv); //TODO AVISAR TDS USUARIOS
 CANAL* retornaCanal(char name[15], SERVER *sv);
 void adicionaParticipante(CLIENTE *c,CANAL *channel);
+void sairDoCanal(CLIENTE *c);
 
 #endif

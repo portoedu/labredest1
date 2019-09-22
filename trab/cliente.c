@@ -106,7 +106,6 @@ int main(int argc, char *argv[])
 	
 	char name[15];
 	char aux[15];
-	char canal[15];
 	/*pthread_t thread;
 	if(pthread_create(&thread, NULL, &receive, NULL)) {
 		fprintf(stderr, "Error creating thread\n");
@@ -114,7 +113,6 @@ int main(int argc, char *argv[])
 	}	*/
 
 	printf("Por favor comece inserindo um nick com o comando /nick!\n\n");
-	memset(canal, '\0', sizeof(canal));
 	if(fork() == 0){
 	while(continua){
 		memset(aux, '\0', sizeof(aux));
@@ -150,19 +148,12 @@ int main(int argc, char *argv[])
 			if(strlen(aux) != 0) {
 				sprintf(msg, "/JOIN #%s", aux);
 				printf("Entrando no canal #%s !!!\n", aux);
-				strcpy(canal, aux);
 			} else {
 				printf("Insira o nome do canal\n");
 			}
 		} else if(strncmp(input,"/part",5)==0) {
-			sprintf(msg, "/PART #%s", aux);
-			if(strlen(canal) == 0)
-			{
-				printf("Você não está em um servidor!\n");
-				continue;
-			}
-			printf("Saindo do canal #%s!\n", canal);
-			memset(canal, '\0', sizeof(canal));
+			sprintf(msg, "/PART");
+			printf("Saindo do canal!\n");
 		} else if(strncmp(input,"/names",6)==0) {
 			sprintf(msg, "/NAMES");
 			printf("Listando nomes!\n");
@@ -178,11 +169,7 @@ int main(int argc, char *argv[])
 			//	sprintf(echoString, "PRIVMSG %s %s", str2, str3);
 			//}
 		} else if(strncmp(input,"/quit",5)==0) {
-			if(strlen(canal) == 0)
-				sprintf(msg, "/QUIT");
-			else
-				sprintf(msg, "/QUIT #%s", canal);
-			printf("Fechando o chat!\n");
+			sprintf(msg, "/QUIT");
 			continua = 0;
 		} else { //MSG
 			sprintf(msg, "<%s> %s", name, input);
@@ -221,8 +208,6 @@ int main(int argc, char *argv[])
 		memcpy(socket_address.sll_addr, dst_mac, 6);
 		if (sendto(clientSocket, buffer_u.raw_data, sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg), 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
 			printf("Send failed\n");
-
-		printf("send\n");
 
 		/*numbytes = recvfrom(clientSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
 		if (buffer_u.cooked_data.ethernet.eth_type == ntohs(ETH_P_IP) ){

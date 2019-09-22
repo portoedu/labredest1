@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
             if (buffer_u.cooked_data.payload.ip.proto == PROTO_UDP && buffer_u.cooked_data.payload.udp.udphdr.dst_port == ntohs(DST_PORT)) {
                 p = (char *)&buffer_u.cooked_data.payload.udp.udphdr + ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len);
                 *p = '\0';
-                printf("src port: %d dst port: %d size: %d msg: %s",
+                printf("src port: %d dst port: %d size: %d msg: %s\n",
                        ntohs(buffer_u.cooked_data.payload.udp.udphdr.src_port), ntohs(buffer_u.cooked_data.payload.udp.udphdr.dst_port),
                        ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len), (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)
                       );
@@ -178,17 +178,15 @@ int main(int argc, char *argv[])
                         }
                     }
                     
-                } /*else if(strncmp(input,"/part",5)==0) {
-                    sprintf(msg, "/PART #%s", aux);
-                    if(strlen(canal) == 0)
+                } else if(strncmp(input,"/PART",5)==0) {
+                    if(c.channel == NULL)
                     {
-                        printf("Você não está em um servidor!\n");
-                        continue;
+                        sprintf(msg, "Você não está em um canal!");
                     }
-                    printf("Saindo do canal #%s!\n", canal);
-                    memset(canal, '\0', sizeof(canal));
+                    sairDoCanal(&c);
+                    sprintf(msg, "Você saiu!");
 
-                } */else if(strncmp(input,"/NAMES",6)==0) {
+                } else if(strncmp(input,"/NAMES",6)==0) {
                     if(c.channel == NULL)
                     {
                         sprintf(msg, "Você não está em um canal!");
@@ -287,10 +285,6 @@ int main(int argc, char *argv[])
                 if (sendto(serverSocket, buffer_u.raw_data, sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg), 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
                     printf("Send failed\n");
 
-                printf("\tsend\n");
-
-
-                //fim echo
             }
             continue;
         }
