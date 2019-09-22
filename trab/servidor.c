@@ -157,18 +157,28 @@ int main(int argc, char *argv[])
                         sprintf(msg, "Não há canais atualmente!");
                     }
                  }
-					/*
-                } else if(strncmp(input,"/join",5)==0) {
-                    strncpy ( aux, &input[7], strlen(input) - 6 );
-                    if(strlen(aux) != 0) {
-                        sprintf(msg, "/JOIN #%s", aux);
-                        printf("Entrando no canal #%s !!!\n", aux);
-                        strcpy(canal, aux);
-                    } else {
-                        printf("Insira o nome do canal\n");
+				 else if(strncmp(input,"/JOIN",5)==0) {
+                    strncpy ( aux, &input[6], strlen(input) - 6 );
+                    printf("111");
+                    if(c.channel != NULL)
+                    {
+                        sprintf(msg, "Você já está em um canal!");
                     }
-
-                } else if(strncmp(input,"/part",5)==0) {
+                    else
+                    {
+                        printf("222");
+                        CANAL *channel = retornaCanal(aux, &serverChannels);
+                        if(channel == NULL)
+                        {
+                            sprintf(msg, "Canal não encontrado!");
+                        }
+                        printf("333");
+                        c.channel = channel;
+                        adicionaParticipante(&c, channel);
+                        sprintf(msg, "Você entrou!");
+                    }
+                    
+                } /*else if(strncmp(input,"/part",5)==0) {
                     sprintf(msg, "/PART #%s", aux);
                     if(strlen(canal) == 0)
                     {
@@ -178,11 +188,29 @@ int main(int argc, char *argv[])
                     printf("Saindo do canal #%s!\n", canal);
                     memset(canal, '\0', sizeof(canal));
 
-                } else if(strncmp(input,"/names",6)==0) {
-                    sprintf(msg, "/NAMES #%s", canal);
-                    printf("Listando nomes!\n");
-
-                } else if(strncmp(input,"/kick",5)==0) {
+                } */else if(strncmp(input,"/NAMES",6)==0) {
+                    if(c.channel == NULL)
+                    {
+                        sprintf(msg, "Você não está em um canal!");
+                    }
+                    else
+                    {
+                        memset(msg, '\0', sizeof(msg));
+                        LISTP *list = c.channel->primeiro;
+                        while(list != NULL)
+                        {
+                            if(strncmp(list->clt->name,c.channel->admin->name,sizeof(c.channel->admin->name))==0)
+                            {
+                                msg[strlen(msg)] = '*';
+                            }
+                            strcat(msg, list->clt->name);
+                            msg[strlen(msg)] = '\n';
+                            list = list->prox;
+                        }
+                        msg[strlen(msg)] = '\0';
+                        
+                    }
+                } /*else if(strncmp(input,"/kick",5)==0) {
                     strncpy ( aux, &input[6], strlen(input) - 6 );
                     sprintf(msg, "/KICK #%s", aux);
                     printf(">>KICK !!!\n"); //TODO

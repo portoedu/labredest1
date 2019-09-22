@@ -24,7 +24,8 @@ typedef struct LISTC{
 typedef struct CANAL{
 	struct CLIENTE*  admin;
 	char 	name[15];
-	struct LISTP*	participantes;
+	struct LISTP*	primeiro;
+	struct LISTP*	ultimo;
 	int 	numParticipantes;
 } CANAL;
 
@@ -36,5 +37,6 @@ typedef struct CLIENTE{
 void criarCanal(char name[15], CLIENTE *c, SERVER *sv);
 int removeCanal(char name[15], CLIENTE *c, SERVER *sv); //TODO AVISAR TDS USUARIOS
 CANAL* retornaCanal(char name[15], SERVER *sv);
+void adicionaParticipante(CLIENTE *c,CANAL *channel);
 
 #endif

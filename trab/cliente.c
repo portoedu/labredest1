@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 			sprintf(msg, "/LIST");
 			printf("Listando canais!\n");
 		} else if(strncmp(input,"/join",5)==0) {
-			strncpy ( aux, &input[7], strlen(input) - 6 );
+			strncpy ( aux, &input[6], strlen(input) - 6 );
 			if(strlen(aux) != 0) {
 				sprintf(msg, "/JOIN #%s", aux);
 				printf("Entrando no canal #%s !!!\n", aux);
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 			printf("Saindo do canal #%s!\n", canal);
 			memset(canal, '\0', sizeof(canal));
 		} else if(strncmp(input,"/names",6)==0) {
-			sprintf(msg, "/NAMES #%s", canal);
+			sprintf(msg, "/NAMES");
 			printf("Listando nomes!\n");
 		} else if(strncmp(input,"/kick",5)==0) {
 			strncpy ( aux, &input[6], strlen(input) - 6 );

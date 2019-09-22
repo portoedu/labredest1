@@ -18,7 +18,8 @@ void criarCanal(char name[15], CLIENTE *c, SERVER *sv)
 
     strcpy(nova->name, name);
     nova->admin = c;
-    nova->participantes = NULL;
+    nova->primeiro = NULL;
+    nova->ultimo = NULL;
     nova->numParticipantes = 0;
     insereNoFim(nova, sv);
 }
@@ -61,7 +62,7 @@ CANAL* retornaCanal(char name[15], SERVER *sv)
     {
         return NULL;
     }
-
+    
     LISTC *list = sv->primeiro;
     while(list != NULL)
     {
@@ -139,5 +140,34 @@ int removeCanal(char name[15], CLIENTE *c, SERVER *sv) //todo ver
         aux = aux->prox;
     }
     return 0;
+}
+
+void adicionaParticipante(CLIENTE *c,CANAL *channel)
+{
+    LISTP* p = NULL;
+
+    p = malloc(sizeof(LISTC));
+    if (p == NULL)
+    {
+        printf("ERRO ALOCAÇÃO!\n");
+        return;
+    }
+
+    p->prox = NULL;
+    p->clt = c;
+
+    if(channel->numParticipantes == 0)
+    {
+        channel->ultimo = c;
+        channel->primeiro = c;
+        channel->numParticipantes +=1;
+        return;
+    }
+
+    p->ant = channel->ultimo;
+    channel->ultimo->prox = p;
+    channel->ultimo = p;
+    channel->numParticipantes +=1;
+    return;
 }
 
