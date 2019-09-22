@@ -34,7 +34,7 @@ void insereNoFim(CANAL *novo, SERVER *serverChannels)
         return;
     }
 
-    c->prox;
+    c->prox = NULL;
     c->chnl = novo;
 
     c->ant = serverChannels->ultimo;
@@ -55,24 +55,58 @@ void insereNoFim(CANAL *novo, SERVER *serverChannels)
     return;
 }
 
-/*bool removeCanal(char name[15], CLIENTE *c, SERVER *sv) //todo ver
+CANAL* retornaCanal(char name[15], SERVER *sv)
+{
+    if(sv->numDeCanais == 0)
+    {
+        return NULL;
+    }
+
+    LISTC *list = sv->primeiro;
+    while(list != NULL)
+    {
+        if(strncmp(list->chnl->name,name,sizeof(name))==0)
+        {
+            return list->chnl;
+        }
+        list = list->prox;
+    }
+    return NULL;
+}
+
+int removeCanal(char name[15], CLIENTE *c, SERVER *sv) //todo ver
 {
     LISTC *aux = sv->primeiro;
-    if(aux->chnl->name == name)
+    if(aux == NULL)
     {
-        if(aux->prox != NULL)
+        return 0;
+    }
+    if(strncmp(aux->chnl->name,name,sizeof(name))==0)
+    {
+        if(aux->chnl->admin == c)
         {
-            aux->prox->ant= NULL;
-            sv->primeiro = aux->prox;
+            if(aux->prox != NULL)
+            {
+                aux->prox->ant= NULL;
+                sv->primeiro = aux->prox;
+            }
+            else
+            {
+                sv->primeiro = NULL;
+            }
+            sv->numDeCanais -=1;
+            if(sv->numDeCanais == 0)
+            {
+                sv->ultimo = NULL;
+            }
+            free(aux);
+            return 1;
         }
-        else
-        {
-            sv->primeiro = NULL;
-        }
-        free(aux);
+        return -1;
     }
 
     LISTC *aux2;
+    aux = aux->prox;
     while(aux != NULL)
     {
         if(strncmp(aux->chnl->name, name, sizeof(name))==0)
@@ -83,24 +117,27 @@ void insereNoFim(CANAL *novo, SERVER *serverChannels)
                 {
                     aux2 = aux->prox;
                     aux2->ant = aux->ant;
-                    aux2 = aux->ant;
-                    aux2->prox = aux->prox;
+                    aux->ant->prox = aux->prox;
                 }
                 else
                 {
-                    aux->ant = NULL;
+                    aux->ant->prox = NULL;
+                }
+                sv->numDeCanais -=1;
+                if(sv->numDeCanais == 0)
+                {
+                    sv->ultimo = NULL;
                 }
                 free(aux);
-                return true;
+                return 1;
             }
             else
             {
-                return false;
+                return -1;
             }
         }
         aux = aux->prox;
     }
-    return false;
+    return 0;
 }
 
-*/

@@ -30,11 +30,11 @@ typedef struct CANAL{
 
 typedef struct CLIENTE{
 	char name[15];
-	char channel[15];
+	CANAL* channel;
 } CLIENTE;
 
 void criarCanal(char name[15], CLIENTE *c, SERVER *sv);
-//bool removeCanal(char name[15], CLIENTE *c, SERVER *sv); //TODO AVISAR TDS USUARIOS
-
+int removeCanal(char name[15], CLIENTE *c, SERVER *sv); //TODO AVISAR TDS USUARIOS
+CANAL* retornaCanal(char name[15], SERVER *sv);
 
 #endif

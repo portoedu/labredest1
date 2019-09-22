@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
 	char *input;
 	char aux[15];
 	CLIENTE c; //TODO MALLOC PARA MULTI CLIENTS
+    c.channel = NULL;
     while (1) {
         /*if(accept(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0){
         	perror("connect");
@@ -119,33 +120,43 @@ int main(int argc, char *argv[])
                     strncpy ( aux, &input[8], strlen(input) - 8);
                     printf("\nCriando canal %s !!!\n", aux);
 					criarCanal(aux, &c, &serverChannels);
-                    sprintf(msg, "Server Criado!");
+                    sprintf(msg, "Canal Criado!");
                     printf("prim: %s\n", serverChannels.primeiro->chnl->name);
                 }
-           /*     } else if(strncmp(input,"/remove",7)==0) {
+                 else if(strncmp(input,"/REMOVE",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8 );
-                    if(strlen(aux) != 0) {
-                        printf("Removendo canal #%s !!!\n", aux);
-                        sprintf(msg, "/REMOVE #%s", aux);
-                    } else {
-                        printf("Insira o nome do canal\n");
+                    int i = removeCanal(aux, &c, &serverChannels);
+                    if(i == 1)
+                    {
+                        sprintf(msg, "Canal Foi removido com Sucesso!");
+                    }
+                    else if(i== 0)
+                    {
+                        sprintf(msg, "Este canal não existe!");
+                    }
+                    else
+                    {
+                        sprintf(msg, "Você não é o admistrador!");
                     }
                 }
-					*/
+					
                  else if(strncmp(input,"/LIST",5)==0) {
                     memset(msg, '\0', sizeof(msg));
 					LISTC *list = serverChannels.primeiro;
-                    if(serverChannels.numDeCanais != 0)
-                    while(list != NULL)
-					{
-                        strcat(msg, list->chnl->name);
-						printf("%s\n", list->chnl->name);
-                        msg[strlen(msg)] = '\n';
-						list = list->prox;
-					}
-                        msg[strlen(msg)] = '\0';
+                    if(serverChannels.numDeCanais != 0){
+                        while(list != NULL)
+                        {
+                            strcat(msg, list->chnl->name);
+                            printf("%s\n", list->chnl->name);
+                            msg[strlen(msg)] = '\n';
+                            list = list->prox;
+                        }
+                            msg[strlen(msg)] = '\0';
                     }
-
+                    else{
+                        sprintf(msg, "Não há canais atualmente!");
+                    }
+                 }
 					/*
                 } else if(strncmp(input,"/join",5)==0) {
                     strncpy ( aux, &input[7], strlen(input) - 6 );
