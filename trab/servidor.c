@@ -159,23 +159,23 @@ int main(int argc, char *argv[])
                  }
 				 else if(strncmp(input,"/JOIN",5)==0) {
                     strncpy ( aux, &input[6], strlen(input) - 6 );
-                    printf("111");
                     if(c.channel != NULL)
                     {
                         sprintf(msg, "Você já está em um canal!");
                     }
                     else
                     {
-                        printf("222");
                         CANAL *channel = retornaCanal(aux, &serverChannels);
                         if(channel == NULL)
                         {
                             sprintf(msg, "Canal não encontrado!");
                         }
-                        printf("333");
-                        c.channel = channel;
-                        adicionaParticipante(&c, channel);
-                        sprintf(msg, "Você entrou!");
+                        else
+                        {
+                            c.channel = channel;
+                            adicionaParticipante(&c, channel);
+                            sprintf(msg, "Você entrou!");
+                        }
                     }
                     
                 } /*else if(strncmp(input,"/part",5)==0) {
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        memset(msg, '\0', sizeof(msg));
+                        msg[0] = '\0';
                         LISTP *list = c.channel->primeiro;
                         while(list != NULL)
                         {
