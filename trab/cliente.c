@@ -244,7 +244,13 @@ int main(int argc, char *argv[])
 			if (buffer_u.cooked_data.payload.ip.proto == PROTO_UDP && buffer_u.cooked_data.payload.udp.udphdr.dst_port == ntohs(DST_PORT)){
 				p = (char *)&buffer_u.cooked_data.payload.udp.udphdr + ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len);
 				*p = '\0';
-				printf("%s \n", (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)); 
+				if(strncmp((char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr),"/QUIT",5)==0)
+				{
+					printf("Desligando!\n");
+					continua = 0;
+				}
+				else
+					printf("%s \n", (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)); 
 			}
 		}
 

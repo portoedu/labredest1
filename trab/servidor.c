@@ -133,14 +133,18 @@ int main(int argc, char *argv[])
                 }
 					*/
                  else if(strncmp(input,"/LIST",5)==0) {
-                    sprintf(msg, "/LIST");
+                    memset(msg, '\0', sizeof(msg));
 					LISTC *list = serverChannels.primeiro;
                     if(serverChannels.numDeCanais != 0)
                     while(list != NULL)
 					{
+                        strcat(msg, list->chnl->name);
 						printf("%s\n", list->chnl->name);
+                        msg[strlen(msg)] = '\n';
 						list = list->prox;
-					}}
+					}
+                        msg[strlen(msg)] = '\0';
+                    }
 
 					/*
                 } else if(strncmp(input,"/join",5)==0) {
@@ -179,18 +183,11 @@ int main(int argc, char *argv[])
                     //if(strlen(str2) != 0) {
                     //	sprintf(echoString, "PRIVMSG %s %s", str2, str3);
                     //}
-
-                } else if(strncmp(input,"/quit",5)==0) {
-                    if(strlen(canal) == 0)
-                        sprintf(msg, "/QUIT");
-                    else
-                        sprintf(msg, "/QUIT #%s", canal);
-                    printf("Fechando o chat!\n");
-                    continua = 0;
-					
-                } else { //MSG
-                    sprintf(msg, "<%s> %s", name, input);
-                }
+*/
+                 else if(strncmp(input,"/QUIT",5)==0) {
+                    sprintf(msg, "/QUIT");
+                    printf("Fechando o chat para %s!\n", c.name); //TODO SAIR DO CANAL SE ESTIVER
+                 }
                 /* Get the index of the interface */
                 memset(&if_idx, 0, sizeof(struct ifreq));
                 strncpy(if_idx.ifr_name, ifName, IFNAMSIZ-1);
