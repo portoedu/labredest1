@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}	*/
 
-	printf("Por favor comece inserindo um nick com o comando \\nick!\n\n");
+	printf("Por favor comece inserindo um nick com o comando /nick!\n\n");
 	memset(canal, '\0', sizeof(canal));
 	if(fork() == 0){
 	while(continua){

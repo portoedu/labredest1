@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        msg[0] = '\0';
+                        memset(msg, '\0', sizeof(msg));
                         LISTP *list = c.channel->primeiro;
                         while(list != NULL)
                         {
@@ -203,12 +203,12 @@ int main(int argc, char *argv[])
                             {
                                 msg[strlen(msg)] = '*';
                             }
+
                             strcat(msg, list->clt->name);
                             msg[strlen(msg)] = '\n';
                             list = list->prox;
                         }
-                        msg[strlen(msg)] = '\0';
-                        
+                        msg[strlen(msg)] = '\0';                        
                     }
                 } /*else if(strncmp(input,"/kick",5)==0) {
                     strncpy ( aux, &input[6], strlen(input) - 6 );
@@ -226,6 +226,10 @@ int main(int argc, char *argv[])
                  else if(strncmp(input,"/QUIT",5)==0) {
                     sprintf(msg, "/QUIT");
                     printf("Fechando o chat para %s!\n", c.name); //TODO SAIR DO CANAL SE ESTIVER
+                 }
+                 else
+                 {
+                    sprintf(msg, "not implemented");
                  }
                 /* Get the index of the interface */
                 memset(&if_idx, 0, sizeof(struct ifreq));

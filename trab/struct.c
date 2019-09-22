@@ -155,11 +155,10 @@ void adicionaParticipante(CLIENTE *c,CANAL *channel)
 
     p->prox = NULL;
     p->clt = c;
-
     if(channel->numParticipantes == 0)
     {
-        channel->ultimo = c;
-        channel->primeiro = c;
+        channel->ultimo = p;
+        channel->primeiro = p;
         channel->numParticipantes +=1;
         return;
     }
