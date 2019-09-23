@@ -146,7 +146,7 @@ void adicionaParticipante(CLIENTE *c,CANAL *channel)
 {
     LISTP* p = NULL;
 
-    p = malloc(sizeof(LISTC));
+    p = malloc(sizeof(LISTP));
     if (p == NULL)
     {
         printf("ERRO ALOCAÇÃO!\n");
@@ -247,4 +247,99 @@ int kickParticipante(char name[15], CLIENTE *c, SERVER *sv)
         lchannel = lchannel->prox;
     }
     return 0;
+}
+
+
+CLIENTE* retornaCliente(uint8_t ip[4], SERVER* sv){
+    LISTP *aux = sv->clientesServidor;
+    LISTP *aux2 = NULL;
+    while(aux != NULL){
+        if(ip[0] == aux->clt->ip[0] && ip[1] == aux->clt->ip[1] && ip[2] == aux->clt->ip[2] && ip[3] == aux->clt->ip[3])
+        {
+            return aux->clt;
+        }
+        aux2 = aux;
+        aux = aux->prox;
+    }
+
+    LISTP* p = NULL;
+
+    p = malloc(sizeof(LISTP));
+    if (p == NULL)
+    {
+        printf("ERRO ALOCAÇÃO!\n");
+        return;
+    }
+
+    CLIENTE* c;
+    c = malloc(sizeof(CLIENTE));
+    if (c == NULL)
+    {
+        printf("ERRO ALOCAÇÃO CLIENTE!\n");
+        return NULL;
+    }
+    strncpy ( c->name, "new", 3);
+    memcpy(c->ip, ip, sizeof(ip));
+
+    p->prox = NULL;
+    p->clt = c;
+    if(aux2 == NULL)
+        sv->clientesServidor = p;
+    else
+    {
+        aux2->prox = p;
+    }
+    return c;
+}
+
+void removeCliente(CLIENTE *c, SERVER *sv)
+{
+    LISTP *aux = sv->clientesServidor;
+
+    if(strncmp(aux->clt->name,c->name,sizeof(c->name))==0)
+    {
+        if(aux->prox != NULL)
+        {
+            aux->prox->ant= NULL;
+            sv->clientesServidor = aux->prox;
+        }
+        else
+        {
+            sv->clientesServidor = NULL;
+        }
+    }
+
+
+    LISTP *aux2;
+    aux = aux->prox;
+    while(aux != NULL)
+    {
+        if(strncmp(aux->clt->name, c->name, sizeof(c->name))==0)
+        {
+            if(aux->prox != NULL)
+            {
+                aux2 = aux->prox;
+                aux2->ant = aux->ant;
+                aux->ant->prox = aux->prox;
+            }
+            else
+            {
+                aux->ant->prox = NULL;
+            }
+        }
+        aux = aux->prox;
+    }
+}
+
+char* retornaip(char name[15], SERVER* sv)
+{
+    LISTP *aux = sv->clientesServidor;
+    while(aux != NULL){
+        if(strncmp(aux->clt->name, name, sizeof(name))==0)
+        {
+            return &aux->clt->ip;
+        }
+        aux = aux->prox;
+    }
+    return NULL;
 }

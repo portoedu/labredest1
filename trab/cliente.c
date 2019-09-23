@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 	memcpy(buffer_u.cooked_data.ethernet.src_addr, src_mac, 6);
 	buffer_u.cooked_data.ethernet.eth_type = htons(ETH_P_IP);
 	
-	char name[15];
+	char name[15] = "new";
 	char aux[15];
 	/*pthread_t thread;
 	if(pthread_create(&thread, NULL, &receive, NULL)) {

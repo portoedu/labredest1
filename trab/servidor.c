@@ -44,13 +44,15 @@ uint32_t ipchksum(uint8_t *packet)
     return sum;
 }
 
-void* threadCliente(void* arg);
+void loop();
+void sendMessage(uint8_t ip[4], char *mensage);
 
 int main(int argc, char *argv[])
 {
     serverChannels.primeiro = NULL;
     serverChannels.ultimo = NULL;
     serverChannels.numDeCanais = 0;
+    serverChannels.clientesServidor = NULL;
     /* Get interface name */
     if (argc > 1)
         strcpy(ifName, argv[1]);
@@ -83,34 +85,28 @@ int main(int argc, char *argv[])
         perror("listen");
         exit(1);
     }*/
-    pthread_t thid;
-    if (pthread_create(&thid, NULL, threadCliente, NULL) != 0) {
-        perror("pthread_create() error");
-        exit(1);
-    }
-
-    pthread_join(thid, NULL);
+    loop();
 
     return 0;
 }
 
-void* threadCliente(void* arg)
+void loop()
 {
     int i;
-    int continua = 1;
 	char *input;
 	char aux[15];
-	CLIENTE *c; //TODO MALLOC PARA MULTI CLIENTS
-    
+    uint8_t ip[4];
+
+	CLIENTE *c;
     c = malloc(sizeof(CLIENTE));
     if (c == NULL)
     {
         printf("ERRO ALOCAÇÃO CLIENTE!\n");
         return NULL;
     }
+    strncpy ( c->name, "new", 3);
 
-    c->channel = NULL;
-    while (continua) {
+    while (1) {
 
         numbytes = recvfrom(serverSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
         if (buffer_u.cooked_data.ethernet.eth_type == ntohs(ETH_P_IP) ) { //&& ((buffer_u.cooked_data.payload.ip.dst[0] == 10)&&(buffer_u.cooked_data.payload.ip.dst[1]==32)&&(buffer_u.cooked_data.payload.ip.dst[2]==143)&&(buffer_u.cooked_data.payload.ip.dst[3]==83)
@@ -125,10 +121,22 @@ void* threadCliente(void* arg)
             if (buffer_u.cooked_data.payload.ip.proto == PROTO_UDP && buffer_u.cooked_data.payload.udp.udphdr.dst_port == ntohs(DST_PORT)) {
                 p = (char *)&buffer_u.cooked_data.payload.udp.udphdr + ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len);
                 *p = '\0';
-                printf("src port: %d dst port: %d size: %d msg: %s\n",
+                printf("src port: %d dst port: %d size: %d msg: %s ip:%d.%d.%d.%d\n",
                        ntohs(buffer_u.cooked_data.payload.udp.udphdr.src_port), ntohs(buffer_u.cooked_data.payload.udp.udphdr.dst_port),
-                       ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len), (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr)
+                       ntohs(buffer_u.cooked_data.payload.udp.udphdr.udp_len), (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr) , buffer_u.cooked_data.payload.ip.src[0], buffer_u.cooked_data.payload.ip.src[1],
+            	buffer_u.cooked_data.payload.ip.src[2], buffer_u.cooked_data.payload.ip.src[3]
                       );
+
+                ip[0] = buffer_u.cooked_data.payload.ip.src[0];
+                ip[1] = buffer_u.cooked_data.payload.ip.src[1];
+                ip[2] = buffer_u.cooked_data.payload.ip.src[2];
+                ip[3] = buffer_u.cooked_data.payload.ip.src[3];
+                
+                c->ip[0] = ip[0];
+                c->ip[1] = ip[1];
+                c->ip[2] = ip[2];
+                c->ip[3] = ip[3];
+                //c = retornaCliente(ip, &serverChannels);
                 //echo send
 			 	input = (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr);
 
@@ -260,69 +268,27 @@ void* threadCliente(void* arg)
                     {
                         sairDoCanal(c);
                     }
+                    removeCliente(c, &serverChannels);
                     printf("Fechando o chat para %s!\n", c->name);
-                    continua = 0;
                  }
                  else
                  {
                     sprintf(msg, input);
+                    if(c->channel != NULL){
+                        LISTP *a;
+                        a = c->channel->primeiro;
+                        while(a != NULL)
+                        {
+                            sendMessage(a->clt->ip, msg);
+                            a = a->prox;
+                        }
+                        continue;
+                    
+                    }
+                    
                  }
 
-                /* Get the index of the interface */
-                memset(&if_idx, 0, sizeof(struct ifreq));
-                strncpy(if_idx.ifr_name, ifName, IFNAMSIZ-1);
-                if (ioctl(serverSocket, SIOCGIFINDEX, &if_idx) < 0)
-                    perror("SIOCGIFINDEX");
-                socket_address.sll_ifindex = if_idx.ifr_ifindex;
-                socket_address.sll_halen = ETH_ALEN;
-
-                /* Get the MAC address of the interface */
-                memset(&if_mac, 0, sizeof(struct ifreq));
-                strncpy(if_mac.ifr_name, ifName, IFNAMSIZ-1);
-                if (ioctl(serverSocket, SIOCGIFHWADDR, &if_mac) < 0)
-                    perror("SIOCGIFHWADDR");
-                memcpy(this_mac, if_mac.ifr_hwaddr.sa_data, 6);
-
-                /* End of configuration. Now we can send data using raw sockets. */
-
-                /* Fill the Ethernet frame header */
-                memcpy(buffer_u.cooked_data.ethernet.dst_addr, dst_mac, 6);
-                memcpy(buffer_u.cooked_data.ethernet.src_addr, src_mac, 6);
-                buffer_u.cooked_data.ethernet.eth_type = htons(ETH_P_IP);
-
-                /* Fill IP header data. Fill all fields and a zeroed CRC field, then update the CRC! */
-                buffer_u.cooked_data.payload.ip.ver = 0x45;
-                buffer_u.cooked_data.payload.ip.tos = 0x00;
-                buffer_u.cooked_data.payload.ip.len = htons(sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg));
-                buffer_u.cooked_data.payload.ip.id = htons(0x00);
-                buffer_u.cooked_data.payload.ip.off = htons(0x00);
-                buffer_u.cooked_data.payload.ip.ttl = 50;
-                buffer_u.cooked_data.payload.ip.proto = 17; //0xff;
-                buffer_u.cooked_data.payload.ip.sum = htons(0x0000);
-
-                buffer_u.cooked_data.payload.ip.src[0] = 10;
-                buffer_u.cooked_data.payload.ip.src[1] = 32;
-                buffer_u.cooked_data.payload.ip.src[2] = 143;
-                buffer_u.cooked_data.payload.ip.src[3] = 83;
-                buffer_u.cooked_data.payload.ip.dst[0] = 10;
-                buffer_u.cooked_data.payload.ip.dst[1] = 32;
-                buffer_u.cooked_data.payload.ip.dst[2] = 143;
-                buffer_u.cooked_data.payload.ip.dst[3] = 32;
-                buffer_u.cooked_data.payload.ip.sum = htons((~ipchksum((uint8_t *)&buffer_u.cooked_data.payload.ip) & 0xffff));
-
-                /* Fill UDP header */
-                buffer_u.cooked_data.payload.udp.udphdr.src_port = htons(8000);
-                buffer_u.cooked_data.payload.udp.udphdr.dst_port = htons(8000);
-                buffer_u.cooked_data.payload.udp.udphdr.udp_len = htons(sizeof(struct udp_hdr) + strlen(msg));
-                buffer_u.cooked_data.payload.udp.udphdr.udp_chksum = 0;
-
-                /* Fill UDP payload */
-                memcpy(buffer_u.raw_data + sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr), msg, strlen(msg));
-
-                /* Send it.. */
-                memcpy(socket_address.sll_addr, dst_mac, 6);
-                if (sendto(serverSocket, buffer_u.raw_data, sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg), 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
-                    printf("Send failed\n");
+                sendMessage(c->ip, msg);
 
             }
             continue;
@@ -330,5 +296,63 @@ void* threadCliente(void* arg)
 
         //printf("got a packet, %d bytes\n", numbytes);
     }
-    free(c);
+}
+
+void sendMessage(uint8_t ip[4], char *mensage)
+{
+    /* Get the index of the interface */
+    memset(&if_idx, 0, sizeof(struct ifreq));
+    strncpy(if_idx.ifr_name, ifName, IFNAMSIZ-1);
+    if (ioctl(serverSocket, SIOCGIFINDEX, &if_idx) < 0)
+        perror("SIOCGIFINDEX");
+    socket_address.sll_ifindex = if_idx.ifr_ifindex;
+    socket_address.sll_halen = ETH_ALEN;
+
+    /* Get the MAC address of the interface */
+    memset(&if_mac, 0, sizeof(struct ifreq));
+    strncpy(if_mac.ifr_name, ifName, IFNAMSIZ-1);
+    if (ioctl(serverSocket, SIOCGIFHWADDR, &if_mac) < 0)
+        perror("SIOCGIFHWADDR");
+    memcpy(this_mac, if_mac.ifr_hwaddr.sa_data, 6);
+
+    /* End of configuration. Now we can send data using raw sockets. */
+
+    /* Fill the Ethernet frame header */
+    memcpy(buffer_u.cooked_data.ethernet.dst_addr, dst_mac, 6);
+    memcpy(buffer_u.cooked_data.ethernet.src_addr, src_mac, 6);
+    buffer_u.cooked_data.ethernet.eth_type = htons(ETH_P_IP);
+
+    /* Fill IP header data. Fill all fields and a zeroed CRC field, then update the CRC! */
+    buffer_u.cooked_data.payload.ip.ver = 0x45;
+    buffer_u.cooked_data.payload.ip.tos = 0x00;
+    buffer_u.cooked_data.payload.ip.len = htons(sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg));
+    buffer_u.cooked_data.payload.ip.id = htons(0x00);
+    buffer_u.cooked_data.payload.ip.off = htons(0x00);
+    buffer_u.cooked_data.payload.ip.ttl = 50;
+    buffer_u.cooked_data.payload.ip.proto = 17; //0xff;
+    buffer_u.cooked_data.payload.ip.sum = htons(0x0000);
+
+    buffer_u.cooked_data.payload.ip.src[0] = 10;
+    buffer_u.cooked_data.payload.ip.src[1] = 0;
+    buffer_u.cooked_data.payload.ip.src[2] = 2;
+    buffer_u.cooked_data.payload.ip.src[3] = 15;
+    buffer_u.cooked_data.payload.ip.dst[0] = ip[0];
+    buffer_u.cooked_data.payload.ip.dst[1] = ip[1];
+    buffer_u.cooked_data.payload.ip.dst[2] = ip[2];
+    buffer_u.cooked_data.payload.ip.dst[3] = ip[3];
+    buffer_u.cooked_data.payload.ip.sum = htons((~ipchksum((uint8_t *)&buffer_u.cooked_data.payload.ip) & 0xffff));
+
+    /* Fill UDP header */
+    buffer_u.cooked_data.payload.udp.udphdr.src_port = htons(8000);
+    buffer_u.cooked_data.payload.udp.udphdr.dst_port = htons(8000);
+    buffer_u.cooked_data.payload.udp.udphdr.udp_len = htons(sizeof(struct udp_hdr) + strlen(msg));
+    buffer_u.cooked_data.payload.udp.udphdr.udp_chksum = 0;
+
+    /* Fill UDP payload */
+    memcpy(buffer_u.raw_data + sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr), msg, strlen(msg));
+
+    /* Send it.. */
+    memcpy(socket_address.sll_addr, dst_mac, 6);
+    if (sendto(serverSocket, buffer_u.raw_data, sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr) + strlen(msg), 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
+        printf("Send failed\n");
 }

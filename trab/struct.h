@@ -1,12 +1,13 @@
 #ifndef STRUCT_H
 #define STRUCT_H
-
+#include <stdint.h>
 #include <stdbool.h>
 
 typedef struct SERVER{
     int numDeCanais;
     struct LISTC* primeiro;
     struct LISTC* ultimo;
+	struct LISTP* clientesServidor;
 } SERVER;
 
 typedef struct LISTP{
@@ -31,6 +32,7 @@ typedef struct CANAL{
 
 typedef struct CLIENTE{
 	char name[15];
+	uint8_t ip[4];
 	CANAL* channel;
 } CLIENTE;
 
@@ -40,4 +42,7 @@ CANAL* retornaCanal(char name[15], SERVER *sv);
 void adicionaParticipante(CLIENTE *c,CANAL *channel);
 void sairDoCanal(CLIENTE *c);
 int kickParticipante(char name[15], CLIENTE *c, SERVER *sv);
+CLIENTE* retornaCliente(uint8_t ip[4], SERVER* sv);
+void removeCliente(CLIENTE *c, SERVER *sv);
+char* retornaip(char name[15], SERVER* sv);
 #endif
