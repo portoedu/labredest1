@@ -252,11 +252,11 @@ int kickParticipante(char name[15], CLIENTE *c, SERVER *sv)
 
 CLIENTE* retornaCliente(uint8_t ip[4], SERVER* sv){
     LISTP *aux = sv->clientesServidor;
-    LISTP *aux2 = NULL;
+    LISTP *aux2 = aux;
     while(aux != NULL){
         if(ip[0] == aux->clt->ip[0] && ip[1] == aux->clt->ip[1] && ip[2] == aux->clt->ip[2] && ip[3] == aux->clt->ip[3])
         {
-            return aux->clt;
+           return aux->clt;
         }
         aux2 = aux;
         aux = aux->prox;
@@ -279,11 +279,14 @@ CLIENTE* retornaCliente(uint8_t ip[4], SERVER* sv){
         return NULL;
     }
     strncpy ( c->name, "new", 3);
-    memcpy(c->ip, ip, sizeof(ip));
+    c->ip[0] = ip[0];
+    c->ip[1] = ip[1];
+    c->ip[2] = ip[2];
+    c->ip[3] = ip[3];
 
     p->prox = NULL;
     p->clt = c;
-    if(aux2 == NULL)
+    if(aux == NULL)
         sv->clientesServidor = p;
     else
     {

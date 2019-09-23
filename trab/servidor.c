@@ -97,14 +97,13 @@ void loop()
 	char aux[15];
     uint8_t ip[4];
 
-	CLIENTE *c;
-    c = malloc(sizeof(CLIENTE));
+    /*c = malloc(sizeof(CLIENTE));
     if (c == NULL)
     {
         printf("ERRO ALOCAÇÃO CLIENTE!\n");
         return NULL;
     }
-    strncpy ( c->name, "new", 3);
+    strncpy ( c->name, "new", 3);*/
 
     while (1) {
 
@@ -132,11 +131,11 @@ void loop()
                 ip[2] = buffer_u.cooked_data.payload.ip.src[2];
                 ip[3] = buffer_u.cooked_data.payload.ip.src[3];
                 
-                c->ip[0] = ip[0];
-                c->ip[1] = ip[1];
-                c->ip[2] = ip[2];
-                c->ip[3] = ip[3];
-                //c = retornaCliente(ip, &serverChannels);
+                CLIENTE *c = retornaCliente(ip, &serverChannels);
+               // c->ip[0] = ip[0];
+               // c->ip[1] = ip[1];
+               // c->ip[2] = ip[2];
+               // c->ip[3] = ip[3];
                 //echo send
 			 	input = (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr);
 
