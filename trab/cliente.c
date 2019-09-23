@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 		buffer_u.cooked_data.payload.ip.src[0] = 10;
 		buffer_u.cooked_data.payload.ip.src[1] = 0;
 		buffer_u.cooked_data.payload.ip.src[2] = 2;
-		buffer_u.cooked_data.payload.ip.src[3] = 15;
+		buffer_u.cooked_data.payload.ip.src[3] = 25;
 		buffer_u.cooked_data.payload.ip.dst[0] = 10;
 		buffer_u.cooked_data.payload.ip.dst[1] = 0;
 		buffer_u.cooked_data.payload.ip.dst[2] = 2;

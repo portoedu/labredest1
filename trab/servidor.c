@@ -211,8 +211,10 @@ void loop()
                     {
                         sprintf(msg, "Você não está em um canal!");
                     }
-                    sairDoCanal(c);
-                    sprintf(msg, "Você saiu!");
+                    else{
+                        sairDoCanal(c);
+                        sprintf(msg, "Você saiu!");
+                    }
 
                 } 
                 else if(strncmp(input,"/NAMES",6)==0) {
