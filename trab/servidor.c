@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
         perror("listen");
         exit(1);
     }*/
+    int i;
 	char *input;
 	char aux[15];
 	CLIENTE c; //TODO MALLOC PARA MULTI CLIENTS
@@ -109,14 +110,15 @@ int main(int argc, char *argv[])
                       );
                 //echo send
 			 	input = (char *)&buffer_u.cooked_data.payload.udp.udphdr + sizeof(struct udp_hdr);
+
                 memset(aux, '\0', sizeof(aux));
                 if(strncmp(input,"/NICK",5)==0) {
                     memset(c.name, '\0', sizeof(c.name));
                     strncpy ( c.name, &input[6], strlen(input) - 6 );
                     printf("\nUsuário alterou o  nick para %s!\n", c.name);
                     sprintf(msg, "Nick alterado!");
-                
-				} else if(strncmp(input,"/CREATE",7)==0) {
+				} 
+                else if(strncmp(input,"/CREATE",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8);
                     printf("\nCriando canal %s !!!\n", aux);
 					criarCanal(aux, &c, &serverChannels);
@@ -125,7 +127,7 @@ int main(int argc, char *argv[])
                 }
                  else if(strncmp(input,"/REMOVE",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8 );
-                    int i = removeCanal(aux, &c, &serverChannels);
+                    i = removeCanal(aux, &c, &serverChannels);
                     if(i == 1)
                     {
                         sprintf(msg, "Canal Foi removido com Sucesso!");
@@ -139,7 +141,6 @@ int main(int argc, char *argv[])
                         sprintf(msg, "Você não é o admistrador!");
                     }
                 }
-					
                  else if(strncmp(input,"/LIST",5)==0) {
                     memset(msg, '\0', sizeof(msg));
 					LISTC *list = serverChannels.primeiro;
@@ -177,8 +178,8 @@ int main(int argc, char *argv[])
                             sprintf(msg, "Você entrou!");
                         }
                     }
-                    
-                } else if(strncmp(input,"/PART",5)==0) {
+                } 
+                else if(strncmp(input,"/PART",5)==0) {
                     if(c.channel == NULL)
                     {
                         sprintf(msg, "Você não está em um canal!");
@@ -186,7 +187,8 @@ int main(int argc, char *argv[])
                     sairDoCanal(&c);
                     sprintf(msg, "Você saiu!");
 
-                } else if(strncmp(input,"/NAMES",6)==0) {
+                } 
+                else if(strncmp(input,"/NAMES",6)==0) {
                     if(c.channel == NULL)
                     {
                         sprintf(msg, "Você não está em um canal!");
@@ -208,27 +210,43 @@ int main(int argc, char *argv[])
                         }
                         msg[strlen(msg)] = '\0';                        
                     }
-                } /*else if(strncmp(input,"/kick",5)==0) {
+                } 
+                else if(strncmp(input,"/KICK",5)==0) {
                     strncpy ( aux, &input[6], strlen(input) - 6 );
-                    sprintf(msg, "/KICK #%s", aux);
-                    printf(">>KICK !!!\n"); //TODO
-
-                } else if(strncmp(input,"/msg",4)==0) {
+                    i = kickParticipante(aux, &c, &serverChannels);
+                    if(i == 1)
+                    {
+                        sprintf(msg, "Cliente removido do Canal!");
+                    }
+                    else if(i== 0)
+                    {
+                        sprintf(msg, "Cliente não encontrado!");
+                    }
+                    else
+                    {
+                        sprintf(msg, "Você não é o admistrador!");
+                    }
+                } 
+                /*else if(strncmp(input,"/msg",4)==0) {
                     strncpy ( aux, &input[5], strlen(input) - 5 );
                     sprintf(msg, "/MSG %s", aux);
                     printf(">>PRIVMSG !!!\n");
                     //if(strlen(str2) != 0) {
                     //	sprintf(echoString, "PRIVMSG %s %s", str2, str3);
                     //}
-*/
-                 else if(strncmp(input,"/QUIT",5)==0) {
+*/              else if(strncmp(input,"/QUIT",5)==0) {
                     sprintf(msg, "/QUIT");
-                    printf("Fechando o chat para %s!\n", c.name); //TODO SAIR DO CANAL SE ESTIVER
+                    if(c.channel != NULL)
+                    {
+                        sairDoCanal(&c);
+                    }
+                    printf("Fechando o chat para %s!\n", c.name);
                  }
                  else
                  {
                     sprintf(msg, "not implemented");
                  }
+
                 /* Get the index of the interface */
                 memset(&if_idx, 0, sizeof(struct ifreq));
                 strncpy(if_idx.ifr_name, ifName, IFNAMSIZ-1);

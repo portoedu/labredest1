@@ -159,8 +159,7 @@ int main(int argc, char *argv[])
 			printf("Listando nomes!\n");
 		} else if(strncmp(input,"/kick",5)==0) {
 			strncpy ( aux, &input[6], strlen(input) - 6 );
-			sprintf(msg, "/KICK #%s", aux);
-			printf(">>KICK !!!\n"); //TODO
+			sprintf(msg, "/KICK %s", aux);
 		} else if(strncmp(input,"/msg",4)==0) {
 			strncpy ( aux, &input[5], strlen(input) - 5 );
 			sprintf(msg, "/MSG %s", aux);

@@ -35,9 +35,9 @@ typedef struct CLIENTE{
 } CLIENTE;
 
 void criarCanal(char name[15], CLIENTE *c, SERVER *sv);
-int removeCanal(char name[15], CLIENTE *c, SERVER *sv); //TODO AVISAR TDS USUARIOS
+int removeCanal(char name[15], CLIENTE *c, SERVER *sv);
 CANAL* retornaCanal(char name[15], SERVER *sv);
 void adicionaParticipante(CLIENTE *c,CANAL *channel);
 void sairDoCanal(CLIENTE *c);
-
+int kickParticipante(char name[15], CLIENTE *c, SERVER *sv);
 #endif

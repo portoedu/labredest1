@@ -219,3 +219,32 @@ void sairDoCanal(CLIENTE *c)
     }
     c->channel = NULL;
 }
+
+int kickParticipante(char name[15], CLIENTE *c, SERVER *sv)
+{
+    LISTC *lchannel = sv->primeiro;
+    LISTP *lclient;
+
+    while(lchannel != NULL)
+    {
+        lclient = lchannel->chnl->primeiro;
+        while(lclient != NULL)
+        {
+            if(strncmp(lclient->clt->name, name, sizeof(name))==0)
+            {
+                if(lchannel->chnl->admin == c->name)
+                {
+                    sairDoCanal(lclient->clt);
+                    return 1;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            lclient = lclient->prox;
+        }
+        lchannel = lchannel->prox;
+    }
+    return 0;
+}
