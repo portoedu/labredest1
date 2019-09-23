@@ -122,12 +122,10 @@ int main(int argc, char *argv[])
 		if(strncmp(input,"/nick",5)==0){
 			memset(name, '\0', sizeof(name));
 			strncpy ( name, &input[6], strlen(input) - 6 );
-			printf("Alterando nick para %s!\n", name);
 			sprintf(msg, "/NICK %s", name);
 		} else if(strncmp(input,"/create",7)==0) {
 			strncpy ( aux, &input[8], strlen(input) - 8);
 			if(strlen(aux) != 0) {
-				printf("Criando canal #%s !!!\n", aux);
 				sprintf(msg, "/CREATE #%s", aux);
 			} else {
 				printf("Insira o nome do canal\n");
@@ -135,35 +133,31 @@ int main(int argc, char *argv[])
 		} else if(strncmp(input,"/remove",7)==0) {
 			strncpy ( aux, &input[8], strlen(input) - 8 );
 			if(strlen(aux) != 0) {
-				printf("Removendo canal #%s !!!\n", aux);
 				sprintf(msg, "/REMOVE #%s", aux);
 			} else {
 				printf("Insira o nome do canal\n");
 			}
 		} else if(strncmp(input,"/list",5)==0) {
 			sprintf(msg, "/LIST");
-			printf("Listando canais!\n");
+			printf("Listando canais:\n");
 		} else if(strncmp(input,"/join",5)==0) {
 			strncpy ( aux, &input[6], strlen(input) - 6 );
 			if(strlen(aux) != 0) {
 				sprintf(msg, "/JOIN #%s", aux);
-				printf("Entrando no canal #%s !!!\n", aux);
 			} else {
 				printf("Insira o nome do canal\n");
 			}
 		} else if(strncmp(input,"/part",5)==0) {
 			sprintf(msg, "/PART");
-			printf("Saindo do canal!\n");
 		} else if(strncmp(input,"/names",6)==0) {
 			sprintf(msg, "/NAMES");
-			printf("Listando nomes!\n");
+			printf("Listando nomes:\n");
 		} else if(strncmp(input,"/kick",5)==0) {
 			strncpy ( aux, &input[6], strlen(input) - 6 );
 			sprintf(msg, "/KICK %s", aux);
 		} else if(strncmp(input,"/msg",4)==0) {
 			strncpy ( aux, &input[5], strlen(input) - 5 );
 			sprintf(msg, "/MSG %s", aux);
-			printf(">>PRIVMSG !!!\n");
 			//if(strlen(str2) != 0) {
 			//	sprintf(echoString, "PRIVMSG %s %s", str2, str3);
 			//}

@@ -21,6 +21,14 @@ char bcast_mac[6] =	{0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 char dst_mac[6] =	{0xa4, 0x1f, 0x72, 0xf5, 0x90, 0xb7};
 char src_mac[6] =	{0xa4, 0x1f, 0x72, 0xf5, 0x90, 0xb7};
 
+struct ifreq ifopts, if_mac,if_idx ;
+struct sockaddr_in serverAddr;
+char ifName[IFNAMSIZ];
+int serverSocket, numbytes;
+char *p;
+struct sockaddr_ll socket_address;
+uint8_t msg[80];
+
 union eth_buffer buffer_u;
 
 uint32_t ipchksum(uint8_t *packet)
@@ -35,16 +43,10 @@ uint32_t ipchksum(uint8_t *packet)
     return sum;
 }
 
+void threadCliente();
+
 int main(int argc, char *argv[])
 {
-    struct ifreq ifopts, if_mac,if_idx ;
-    struct sockaddr_in serverAddr;
-    char ifName[IFNAMSIZ];
-    int serverSocket, numbytes;
-    char *p;
-    struct sockaddr_ll socket_address;
-    uint8_t msg[80] = "hello";
-
     serverChannels.primeiro = NULL;
     serverChannels.ultimo = NULL;
     serverChannels.numDeCanais = 0;
@@ -80,12 +82,28 @@ int main(int argc, char *argv[])
         perror("listen");
         exit(1);
     }*/
+    threadCliente();
+
+    return 0;
+}
+
+void threadCliente()
+{
     int i;
+    int continua = 1;
 	char *input;
 	char aux[15];
-	CLIENTE c; //TODO MALLOC PARA MULTI CLIENTS
-    c.channel = NULL;
-    while (1) {
+	CLIENTE *c; //TODO MALLOC PARA MULTI CLIENTS
+    
+    c = malloc(sizeof(CLIENTE));
+    if (c == NULL)
+    {
+        printf("ERRO ALOCAÇÃO CLIENTE!\n");
+        return;
+    }
+
+    c->channel = NULL;
+    while (continua) {
         /*if(accept(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0){
         	perror("connect");
 
@@ -113,21 +131,20 @@ int main(int argc, char *argv[])
 
                 memset(aux, '\0', sizeof(aux));
                 if(strncmp(input,"/NICK",5)==0) {
-                    memset(c.name, '\0', sizeof(c.name));
-                    strncpy ( c.name, &input[6], strlen(input) - 6 );
-                    printf("\nUsuário alterou o  nick para %s!\n", c.name);
+                    memset(c->name, '\0', sizeof(c->name));
+                    strncpy ( c->name, &input[6], strlen(input) - 6 );
+                    printf("\nUsuário alterou o  nick para %s!\n", c->name);
                     sprintf(msg, "Nick alterado!");
 				} 
                 else if(strncmp(input,"/CREATE",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8);
                     printf("\nCriando canal %s !!!\n", aux);
-					criarCanal(aux, &c, &serverChannels);
+					criarCanal(aux, c, &serverChannels);
                     sprintf(msg, "Canal Criado!");
-                    printf("prim: %s\n", serverChannels.primeiro->chnl->name);
                 }
                  else if(strncmp(input,"/REMOVE",7)==0) {
                     strncpy ( aux, &input[8], strlen(input) - 8 );
-                    i = removeCanal(aux, &c, &serverChannels);
+                    i = removeCanal(aux, c, &serverChannels);
                     if(i == 1)
                     {
                         sprintf(msg, "Canal Foi removido com Sucesso!");
@@ -160,7 +177,7 @@ int main(int argc, char *argv[])
                  }
 				 else if(strncmp(input,"/JOIN",5)==0) {
                     strncpy ( aux, &input[6], strlen(input) - 6 );
-                    if(c.channel != NULL)
+                    if(c->channel != NULL)
                     {
                         sprintf(msg, "Você já está em um canal!");
                     }
@@ -173,33 +190,33 @@ int main(int argc, char *argv[])
                         }
                         else
                         {
-                            c.channel = channel;
-                            adicionaParticipante(&c, channel);
+                            c->channel = channel;
+                            adicionaParticipante(c, channel);
                             sprintf(msg, "Você entrou!");
                         }
                     }
                 } 
                 else if(strncmp(input,"/PART",5)==0) {
-                    if(c.channel == NULL)
+                    if(c->channel == NULL)
                     {
                         sprintf(msg, "Você não está em um canal!");
                     }
-                    sairDoCanal(&c);
+                    sairDoCanal(c);
                     sprintf(msg, "Você saiu!");
 
                 } 
                 else if(strncmp(input,"/NAMES",6)==0) {
-                    if(c.channel == NULL)
+                    if(c->channel == NULL)
                     {
                         sprintf(msg, "Você não está em um canal!");
                     }
                     else
                     {
                         memset(msg, '\0', sizeof(msg));
-                        LISTP *list = c.channel->primeiro;
+                        LISTP *list = c->channel->primeiro;
                         while(list != NULL)
                         {
-                            if(strncmp(list->clt->name,c.channel->admin->name,sizeof(c.channel->admin->name))==0)
+                            if(strncmp(list->clt->name,c->channel->admin->name,sizeof(c->channel->admin->name))==0)
                             {
                                 msg[strlen(msg)] = '*';
                             }
@@ -213,7 +230,7 @@ int main(int argc, char *argv[])
                 } 
                 else if(strncmp(input,"/KICK",5)==0) {
                     strncpy ( aux, &input[6], strlen(input) - 6 );
-                    i = kickParticipante(aux, &c, &serverChannels);
+                    i = kickParticipante(aux, c, &serverChannels);
                     if(i == 1)
                     {
                         sprintf(msg, "Cliente removido do Canal!");
@@ -236,15 +253,16 @@ int main(int argc, char *argv[])
                     //}
 */              else if(strncmp(input,"/QUIT",5)==0) {
                     sprintf(msg, "/QUIT");
-                    if(c.channel != NULL)
+                    if(c->channel != NULL)
                     {
-                        sairDoCanal(&c);
+                        sairDoCanal(c);
                     }
-                    printf("Fechando o chat para %s!\n", c.name);
+                    printf("Fechando o chat para %s!\n", c->name);
+                    continua = 0;
                  }
                  else
                  {
-                    sprintf(msg, "not implemented");
+                    sprintf(msg, input);
                  }
 
                 /* Get the index of the interface */
@@ -309,6 +327,5 @@ int main(int argc, char *argv[])
 
         //printf("got a packet, %d bytes\n", numbytes);
     }
-
-    return 0;
+    free(c);
 }
