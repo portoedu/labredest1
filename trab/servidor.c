@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <net/if.h>
@@ -43,7 +44,7 @@ uint32_t ipchksum(uint8_t *packet)
     return sum;
 }
 
-void threadCliente();
+void* threadCliente(void* arg);
 
 int main(int argc, char *argv[])
 {
@@ -82,12 +83,18 @@ int main(int argc, char *argv[])
         perror("listen");
         exit(1);
     }*/
-    threadCliente();
+    pthread_t thid;
+    if (pthread_create(&thid, NULL, threadCliente, NULL) != 0) {
+        perror("pthread_create() error");
+        exit(1);
+    }
+
+    pthread_join(thid, NULL);
 
     return 0;
 }
 
-void threadCliente()
+void* threadCliente(void* arg)
 {
     int i;
     int continua = 1;
@@ -99,15 +106,11 @@ void threadCliente()
     if (c == NULL)
     {
         printf("ERRO ALOCAÇÃO CLIENTE!\n");
-        return;
+        return NULL;
     }
 
     c->channel = NULL;
     while (continua) {
-        /*if(accept(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0){
-        	perror("connect");
-
-        }*/
 
         numbytes = recvfrom(serverSocket, buffer_u.raw_data, ETH_LEN, 0, NULL, NULL);
         if (buffer_u.cooked_data.ethernet.eth_type == ntohs(ETH_P_IP) ) { //&& ((buffer_u.cooked_data.payload.ip.dst[0] == 10)&&(buffer_u.cooked_data.payload.ip.dst[1]==32)&&(buffer_u.cooked_data.payload.ip.dst[2]==143)&&(buffer_u.cooked_data.payload.ip.dst[3]==83)
@@ -233,7 +236,7 @@ void threadCliente()
                     i = kickParticipante(aux, c, &serverChannels);
                     if(i == 1)
                     {
-                        sprintf(msg, "Cliente removido do Canal!");
+                        sprintf(msg, "Cliente %s foi removido do Canal!", aux);
                     }
                     else if(i== 0)
                     {
