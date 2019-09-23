@@ -282,10 +282,9 @@ void loop()
                         {
                             sendMessage(a->clt->ip, msg);
                             a = a->prox;
-                        }
-                        continue;
-                    
+                        }                    
                     }
+                    continue;
                     
                  }
 
